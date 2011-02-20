@@ -434,10 +434,7 @@ enum {
 				Color color = [self hToColor:h];
 				[p setViewColor:color];
 
-				if (color != ColorNone) {
-					int src = [[sounds objectAtIndex:color] intValue];
-					[sndMgr startSound:src];
-				}
+				[self playColor:color];
 			}
 			else {
 				p.view.backgroundColor = [UIColor whiteColor];
@@ -519,6 +516,13 @@ enum {
 		BOOL dataIsReady = CMSampleBufferDataIsReady(sRef);
 		if (dataIsReady) [self processBuffer:CMSampleBufferGetImageBuffer(sRef)];
 	}
+}
+
+- (void)playColor:(Color)color {
+	if (color != ColorNone) {
+		int src = [[sounds objectAtIndex:color] intValue];
+		[sndMgr startSound:src];
+	}	
 }
 
 #pragma mark -

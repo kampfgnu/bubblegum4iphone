@@ -58,6 +58,7 @@
 - (Color)hToColor:(float)h;
 - (void)timerMethod:(NSThread *)thread;
 - (void)doActualProcessing;
+- (void)playColor:(Color)color;
 
 @end
 
