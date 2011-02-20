@@ -33,19 +33,20 @@
 		if ([device position] == (useFrontCam ? AVCaptureDevicePositionFront : AVCaptureDevicePositionBack)) 
 		{
 			camera = device;
+			if (!useFrontCam) {
+				NSLog(@"device has torch: %i", [device hasTorch]);
+				if ([device hasTorch]) {
+
+					[captureSession beginConfiguration];
+					[device lockForConfiguration:nil];
+					[device setTorchMode:AVCaptureTorchModeOn];
+					[device unlockForConfiguration];
+					[captureSession commitConfiguration];
+					//[captureSession startRunning];
+				}
+			}
+			break;
 		}
-//		if (!useFrontCam) {
-//			if ([device hasTorch] && [device hasFlash]) {
-//
-//				[captureSession beginConfiguration];
-//				[device lockForConfiguration:nil];
-//				[device setTorchMode:AVCaptureTorchModeOn];
-//				[device setFlashMode:AVCaptureFlashModeOn];
-//				[device unlockForConfiguration];
-//				[captureSession commitConfiguration];
-//				[captureSession startRunning];
-//			}
-//		}
 	}
 	
 	// Add the video input	
