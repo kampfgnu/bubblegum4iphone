@@ -16,8 +16,7 @@
 
 @protocol ColorTrackingCameraDelegate;
 
-@interface ColorTrackingCamera : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
-{
+@interface ColorTrackingCamera : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate> {
 	AVCaptureVideoPreviewLayer *videoPreviewLayer;
 	AVCaptureSession *captureSession;
 	AVCaptureDeviceInput *videoInput;

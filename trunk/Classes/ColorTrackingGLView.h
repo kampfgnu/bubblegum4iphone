@@ -16,8 +16,7 @@
 #define FBO_HEIGHT 480
 #define FBO_WIDTH 320
 
-@interface ColorTrackingGLView : UIView 
-{
+@interface ColorTrackingGLView : UIView {
 	/* The pixel dimensions of the backbuffer */
 	GLint backingWidth, backingHeight;
 	

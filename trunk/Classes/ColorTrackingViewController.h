@@ -15,8 +15,7 @@
 @class GridView;
 @class SoundManager;
 
-@interface ColorTrackingViewController : UIViewController <ColorTrackingCameraDelegate>
-{
+@interface ColorTrackingViewController : UIViewController <ColorTrackingCameraDelegate> {
 	ColorTrackingCamera *camera;
 	UIScreen *screenForDisplay;
 	ColorTrackingGLView *glView;
@@ -35,8 +34,10 @@
 	int step;
 	
 	SoundManager *sndMgr;
-	NSMutableArray *sounds;
+	NSMutableDictionary *sounds;
+//	NSMutableArray *sounds;
 	NSDate *nextBeat;
+	BOOL runProcessingThread;
 }
 
 @property(readonly) ColorTrackingGLView *glView;
@@ -54,8 +55,9 @@
 - (CGPoint)centroidFromTexture:(GLubyte *)pixels;
 
 - (void)processBuffer:(CVImageBufferRef)cameraFrame;
-- (float)RGBtoHSV:(float)r g:(float)g b:(float)b;
-- (Color)hToColor:(float)h;
+- (void)RGB2HSV:(float)r g:(float)g b:(float)b h:(float *)h s:(float*)s v:(float*)v;
+- (Color)HSV2Color:(float)h s:(float)s v:(float)v;
+- (NSString *)color2String:(Color)color;
 - (void)timerMethod:(NSThread *)thread;
 - (void)doActualProcessing;
 - (void)playColor:(Color)color;

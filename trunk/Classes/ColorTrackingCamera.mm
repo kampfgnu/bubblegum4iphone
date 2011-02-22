@@ -15,8 +15,7 @@
 #pragma mark -
 #pragma mark Initialization and teardown
 
-- (id)init; 
-{
+- (id)init {
 	if (!(self = [super init]))
 		return nil;
 	
@@ -24,36 +23,33 @@
 	// Create the capture session
 	captureSession = [[AVCaptureSession alloc] init];
 	
-	// Grab the back-facing camera
+	// Grab the camera
 	AVCaptureDevice *camera = nil;
 	NSArray *devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-	for (AVCaptureDevice *device in devices) 
-	{
+	for (AVCaptureDevice *device in devices) {
 		BOOL useFrontCam = [[NSUserDefaults standardUserDefaults] boolForKey:@"cam_key"];
-		if ([device position] == (useFrontCam ? AVCaptureDevicePositionFront : AVCaptureDevicePositionBack)) 
-		{
+		if ([device position] == (useFrontCam ? AVCaptureDevicePositionFront : AVCaptureDevicePositionBack)) {
 			camera = device;
-			if (!useFrontCam) {
-				NSLog(@"device has torch: %i", [device hasTorch]);
-				if ([device hasTorch]) {
-
-					[captureSession beginConfiguration];
-					[device lockForConfiguration:nil];
-					[device setTorchMode:AVCaptureTorchModeOn];
-					[device unlockForConfiguration];
-					[captureSession commitConfiguration];
-					//[captureSession startRunning];
-				}
-			}
 			break;
 		}
 	}
 	
+	//device configuration
+	[captureSession beginConfiguration];
+	[camera lockForConfiguration:nil];
+	
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"torch_key"] && [camera hasTorch]) [camera setTorchMode:AVCaptureTorchModeOn];
+	camera.focusMode = AVCaptureFocusModeLocked;
+//	camera.exposureMode = AVCaptureExposureModeLocked;
+	NSLog(@"focus mode: %i, exposure mode: %i, whitebalance mode: %i", [camera focusMode], [camera exposureMode], [camera whiteBalanceMode]);
+	
+	[camera unlockForConfiguration];
+	[captureSession commitConfiguration];
+	
 	// Add the video input	
 	NSError *error = nil;
 	videoInput = [[[AVCaptureDeviceInput alloc] initWithDevice:camera error:&error] autorelease];
-	if ([captureSession canAddInput:videoInput]) 
-	{
+	if ([captureSession canAddInput:videoInput]) {
 		[captureSession addInput:videoInput];
 	}
 	
@@ -71,42 +67,39 @@
 //	dispatch_queue_t videoQueue = dispatch_queue_create("com.sunsetlakesoftware.colortracking.videoqueue", NULL);
 	[videoOutput setSampleBufferDelegate:self queue:dispatch_get_main_queue()];
 
-	if ([captureSession canAddOutput:videoOutput])
-	{
+	if ([captureSession canAddOutput:videoOutput]) {
 		[captureSession addOutput:videoOutput];
 	}
-	else
-	{
+	else {
 		NSLog(@"Couldn't add video output");
 	}
 
 	// Start capturing
 //	[captureSession setSessionPreset:AVCaptureSessionPresetHigh];
 	[captureSession setSessionPreset:AVCaptureSessionPreset640x480];
-	if (![captureSession isRunning])
-	{
+	if (![captureSession isRunning]) {
 		[captureSession startRunning];
-	};
+	}
 	
 	return self;
 }
 
-- (void)dealloc 
-{
+- (void)dealloc {
 	[captureSession stopRunning];
 
 	[captureSession release];
 	[videoPreviewLayer release];
 	[videoOutput release];
 	[videoInput release];
+	if (currentBuffer) CFRelease(currentBuffer);
+	
 	[super dealloc];
 }
 
 #pragma mark -
 #pragma mark AVCaptureVideoDataOutputSampleBufferDelegate
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
-{
+- (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
 	if (currentBuffer) CFRelease(currentBuffer);
 	currentBuffer = nil;
 	CMSampleBufferCreateCopy(kCFAllocatorDefault, sampleBuffer, &currentBuffer);
@@ -124,14 +117,11 @@
 @synthesize delegate;
 @synthesize videoPreviewLayer;
 
-- (AVCaptureVideoPreviewLayer *)videoPreviewLayer;
-{
-	if (videoPreviewLayer == nil)
-	{
+- (AVCaptureVideoPreviewLayer *)videoPreviewLayer {
+	if (videoPreviewLayer == nil) {
 		videoPreviewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:captureSession];
         
-        if ([videoPreviewLayer isOrientationSupported]) 
-		{
+        if ([videoPreviewLayer isOrientationSupported]) {
             [videoPreviewLayer setOrientation:AVCaptureVideoOrientationPortrait];
         }
         
