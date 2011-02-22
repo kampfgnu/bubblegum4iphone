@@ -16,9 +16,19 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>FrontCam</string>
+			<string>use frontCam</string>
 			<key>Key</key>
 			<string>cam_key</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>use torche</string>
+			<key>Key</key>
+			<string>torch_key</string>
 			<key>DefaultValue</key>
 			<true/>
 		</dict>

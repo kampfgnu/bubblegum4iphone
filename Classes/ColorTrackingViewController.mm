@@ -37,33 +37,34 @@ enum {
 #pragma mark -
 #pragma mark Initialization and teardown
 
-- (id)initWithScreen:(UIScreen *)newScreenForDisplay;
-{
-    if ((self = [super initWithNibName:nil bundle:nil])) 
-	{
+- (id)initWithScreen:(UIScreen *)newScreenForDisplay {
+    if ((self = [super initWithNibName:nil bundle:nil])) {
 		screenForDisplay = newScreenForDisplay;
 		
 		rawPositionPixels = (GLubyte *) calloc(FBO_WIDTH * FBO_HEIGHT * 4, sizeof(GLubyte));
 		
 		sndMgr = [[SoundManager alloc] init];
-		sounds = [[NSMutableArray alloc] init];
-//		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"hihatclosed"]] forKey:@"hihatclosed"];
-//		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"kick"]] forKey:@"kick"];
-//		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"ride"]] forKey:@"ride"];
-//		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"snare"]] forKey:@"snare"];
-		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"hihatclosed"]]];
-		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"kick"]]];
-		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"ride"]]];
-		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"snare"]]];
-		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"tom"]]];
+		sounds = [[NSMutableDictionary alloc] init];
+//		sounds = [[NSMutableArray alloc] init];
+		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"hihatclosed"]] forKey:@"hihatclosed"];
+		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"kick"]] forKey:@"kick"];
+		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"ride"]] forKey:@"ride"];
+		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"snare"]] forKey:@"snare"];
+		[sounds setObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"tom"]] forKey:@"tom"];
+//		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"hihatclosed"]]];
+//		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"kick"]]];
+//		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"ride"]]];
+//		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"snare"]]];
+//		[sounds addObject:[NSNumber numberWithInt:[sndMgr loadCafFile:@"tom"]]];
 		
 		step = 0;
+		
+		runProcessingThread = YES;
 	}
     return self;
 }
 
-- (void)loadView 
-{
+- (void)loadView {
 	CGRect applicationFrame = [screenForDisplay applicationFrame];	
 	CGRect mainScreenFrame = [[UIScreen mainScreen] applicationFrame];	
 	UIView *primaryView = [[UIView alloc] initWithFrame:mainScreenFrame];
@@ -104,23 +105,24 @@ enum {
 	//[NSTimer scheduledTimerWithTimeInterval:60.0/BPM target:self selector:@selector(timerMethod:) userInfo:nil repeats:YES];
 }
 
-- (void)didReceiveMemoryWarning 
-{
-//    [super didReceiveMemoryWarning];
+- (void)didReceiveMemoryWarning {
+	[super didReceiveMemoryWarning];
 }
 
-- (void)dealloc 
-{
+- (void)dealloc {
+	runProcessingThread = NO;
 	free(rawPositionPixels);
 	[camera release];
-    [super dealloc];
+	[sndMgr release];
+	[nextBeat release];
+	
+	[super dealloc];
 }
 
 #pragma mark -
 #pragma mark OpenGL ES 2.0 rendering methods
 
-- (void)drawFrame
-{    
+- (void)drawFrame {    
     // Replace the implementation of this method to do your own custom drawing.
     static const GLfloat squareVertices[] = {
         -1.0f, -1.0f,
@@ -175,8 +177,7 @@ enum {
 #pragma mark -
 #pragma mark OpenGL ES 2.0 setup methods
 
-- (BOOL)loadVertexShader:(NSString *)vertexShaderName fragmentShader:(NSString *)fragmentShaderName forProgram:(GLuint *)programPointer;
-{
+- (BOOL)loadVertexShader:(NSString *)vertexShaderName fragmentShader:(NSString *)fragmentShaderName forProgram:(GLuint *)programPointer {
     GLuint vertexShader, fragShader;
 	
     NSString *vertShaderPathname, *fragShaderPathname;
@@ -186,16 +187,14 @@ enum {
     
     // Create and compile vertex shader.
     vertShaderPathname = [[NSBundle mainBundle] pathForResource:vertexShaderName ofType:@"vsh"];
-    if (![self compileShader:&vertexShader type:GL_VERTEX_SHADER file:vertShaderPathname])
-    {
+    if (![self compileShader:&vertexShader type:GL_VERTEX_SHADER file:vertShaderPathname]) {
         NSLog(@"Failed to compile vertex shader");
         return FALSE;
     }
     
     // Create and compile fragment shader.
     fragShaderPathname = [[NSBundle mainBundle] pathForResource:fragmentShaderName ofType:@"fsh"];
-    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname])
-    {
+    if (![self compileShader:&fragShader type:GL_FRAGMENT_SHADER file:fragShaderPathname]) {
         NSLog(@"Failed to compile fragment shader");
         return FALSE;
     }
@@ -212,22 +211,18 @@ enum {
     glBindAttribLocation(*programPointer, ATTRIB_TEXTUREPOSITON, "inputTextureCoordinate");
     
     // Link program.
-    if (![self linkProgram:*programPointer])
-    {
+    if (![self linkProgram:*programPointer]) {
         NSLog(@"Failed to link program: %d", *programPointer);
         
-        if (vertexShader)
-        {
+        if (vertexShader) {
             glDeleteShader(vertexShader);
             vertexShader = 0;
         }
-        if (fragShader)
-        {
+        if (fragShader) {
             glDeleteShader(fragShader);
             fragShader = 0;
         }
-        if (*programPointer)
-        {
+        if (*programPointer) {
             glDeleteProgram(*programPointer);
             *programPointer = 0;
         }
@@ -241,26 +236,22 @@ enum {
     uniforms[UNIFORM_THRESHOLD] = glGetUniformLocation(*programPointer, "threshold");
     
     // Release vertex and fragment shaders.
-    if (vertexShader)
-	{
+    if (vertexShader) {
         glDeleteShader(vertexShader);
 	}
-    if (fragShader)
-	{
+    if (fragShader) {
         glDeleteShader(fragShader);		
 	}
     
     return TRUE;
 }
 
-- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file
-{
+- (BOOL)compileShader:(GLuint *)shader type:(GLenum)type file:(NSString *)file {
     GLint status;
     const GLchar *source;
     
     source = (GLchar *)[[NSString stringWithContentsOfFile:file encoding:NSUTF8StringEncoding error:nil] UTF8String];
-    if (!source)
-    {
+    if (!source) {
         NSLog(@"Failed to load vertex shader");
         return FALSE;
     }
@@ -272,8 +263,7 @@ enum {
 #if defined(DEBUG)
     GLint logLength;
     glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0)
-    {
+    if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetShaderInfoLog(*shader, logLength, &logLength, log);
         NSLog(@"Shader compile log:\n%s", log);
@@ -282,8 +272,7 @@ enum {
 #endif
     
     glGetShaderiv(*shader, GL_COMPILE_STATUS, &status);
-    if (status == 0)
-    {
+    if (status == 0) {
         glDeleteShader(*shader);
         return FALSE;
     }
@@ -291,8 +280,7 @@ enum {
     return TRUE;
 }
 
-- (BOOL)linkProgram:(GLuint)prog
-{
+- (BOOL)linkProgram:(GLuint)prog {
     GLint status;
     
     glLinkProgram(prog);
@@ -300,8 +288,7 @@ enum {
 #if defined(DEBUG)
     GLint logLength;
     glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0)
-    {
+    if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetProgramInfoLog(prog, logLength, &logLength, log);
         NSLog(@"Program link log:\n%s", log);
@@ -316,14 +303,12 @@ enum {
     return TRUE;
 }
 
-- (BOOL)validateProgram:(GLuint)prog
-{
+- (BOOL)validateProgram:(GLuint)prog {
     GLint logLength, status;
     
     glValidateProgram(prog);
     glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &logLength);
-    if (logLength > 0)
-    {
+    if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetProgramInfoLog(prog, logLength, &logLength, log);
         NSLog(@"Program validate log:\n%s", log);
@@ -340,12 +325,10 @@ enum {
 #pragma mark -
 #pragma mark Image processing
 
-- (CGPoint)centroidFromTexture:(GLubyte *)pixels;
-{
+- (CGPoint)centroidFromTexture:(GLubyte *)pixels {
 	CGFloat currentXTotal = 0.0f, currentYTotal = 0.0f, currentPixelTotal = 0.0f;
 	
-	for (NSUInteger currentPixel = 0; currentPixel < (FBO_WIDTH * FBO_HEIGHT); currentPixel++)
-	{
+	for (NSUInteger currentPixel = 0; currentPixel < (FBO_WIDTH * FBO_HEIGHT); currentPixel++) {
 		currentYTotal += (CGFloat)pixels[currentPixel * 4] / 255.0f;
 		currentXTotal += (CGFloat)pixels[(currentPixel * 4) + 1] / 255.0f;
 		currentPixelTotal += (CGFloat)pixels[(currentPixel * 4) + 3] / 255.0f;
@@ -357,15 +340,13 @@ enum {
 #pragma mark -
 #pragma mark ColorTrackingCameraDelegate methods
 
-- (void)cameraHasConnected;
-{
+- (void)cameraHasConnected {
 //	NSLog(@"Connected to camera");
 /*	camera.videoPreviewLayer.frame = self.view.bounds;
 	[self.view.layer addSublayer:camera.videoPreviewLayer];*/
 }
 
-- (void)displayNewCameraFrame:(CVImageBufferRef)cameraFrame;
-{
+- (void)displayNewCameraFrame:(CVImageBufferRef)cameraFrame {
 	CVPixelBufferLockBaseAddress(cameraFrame, 0);
 	int bufferHeight = CVPixelBufferGetHeight(cameraFrame);
 	int bufferWidth = CVPixelBufferGetWidth(cameraFrame);
@@ -414,7 +395,7 @@ enum {
 	unsigned char *rowBase = (unsigned char *)CVPixelBufferGetBaseAddress(cameraFrame);
 	int bytesPerRow = CVPixelBufferGetBytesPerRow(cameraFrame);
 	
-	for (int i = 0; i < gridView.numRows; i++) {
+	for (int i = 0; i < gridView.numRows-2; i++) {
 		NSMutableArray *row = [gridView.grid objectAtIndex:i];
 		for (int j = 0; j < gridView.numCols; j++) {
 			GridPoint *p = [row objectAtIndex:j];
@@ -430,10 +411,12 @@ enum {
 				float g = (float)pixel[1] / 255.0;
 				float b = (float)pixel[0] / 255.0;
 				
-				float h = [self RGBtoHSV:r g:g b:b];
-				Color color = [self hToColor:h];
+				float h, s, v;
+				[self RGB2HSV:r g:g b:b h:&h s:&s v:&v];
+				
+				Color color = [self HSV2Color:h s:s v:v];
+				
 				[p setViewColor:color];
-
 				[self playColor:color];
 			}
 			else {
@@ -453,48 +436,81 @@ enum {
 // h = [0,360], s = [0,1], v = [0,1]
 //		if s == 0, then h = -1 (undefined)
 
-- (float)RGBtoHSV:(float)r g:(float)g b:(float)b {
-	float h, s, v;
+- (void)RGB2HSV:(float)r g:(float)g b:(float)b h:(float *)h s:(float*)s v:(float*)v {
+//	float h, s, v;
 	float min, max, delta;
 	
 	min = MIN(MIN(r, g), b);
 	max = MAX(MAX(r, g), b);
-	v = max;				// v
+	*v = max;				// v
 	
 	delta = max - min;
 	
-	if (max != 0) s = delta / max;		// s
+	if (max != 0) *s = delta / max;		// s
 	else {
 		// r = g = b = 0		// s = 0, v is undefined
-		s = 0;
-		h = -1;
-		return 0;
+		
+		*s = 0;
+		*h = -1;
+		return;
 	}
 	
-	if (r == max) h = ( g - b ) / delta;		// between yellow & magenta
-	else if (g == max) h = 2 + (b - r) / delta;	// between cyan & yellow
-	else h = 4 + (r - g) / delta;	// between magenta & cyan
+	if (r == max) *h = ( g - b ) / delta;		// between yellow & magenta
+	else if (g == max) *h = 2 + (b - r) / delta;	// between cyan & yellow
+	else *h = 4 + (r - g) / delta;	// between magenta & cyan
 	
-	h *= 60;				// degrees
-	if( h < 0 )
-		h += 360;
-			  
-	NSLog(@"hhhhh: %f", h);
-	return h;
+	*h *= 60;				// degrees
+	if( *h < 0 ) *h += 360;
 }
 
-- (Color)hToColor:(float)h {
-	if (h < 60) return ColorNone;
-	else if (h < 120) return ColorYellow;
-	else if (h < 180) return ColorGreen;
-	else if (h < 240) return ColorBlue;
-	else if (h < 300) return ColorPurple;
-	else return ColorRed;
+- (Color)HSV2Color:(float)h s:(float)s v:(float)v {
+	//black:
+	Color color;
+	if (isnan(h) && s == 0.0 && v == 1.0) color = ColorNone;
+	else if (h < 30) color = ColorRed;
+	else if (h < 100) color = ColorYellow;
+	else if (h < 180) color = ColorGreen;
+	else if (h < 240) color = ColorBlue;
+	else if (h < 330) color = ColorPurple;
+	else color = ColorRed;
+	
+	NSLog(@"color: %@ h: %2f°, s: %2f%%, v: %2f%%", [self color2String:color], h, s*100, v*100);
+	
+	return color;
+}
+
+- (NSString *)color2String:(Color)color {
+	NSString *str;
+	switch (color) {
+		case ColorNone:
+			str = @"NONE";
+			break;
+		case ColorRed:
+			str = @"RED";
+			break;
+		case ColorYellow:
+			str = @"YELLOW";
+			break;
+		case ColorGreen:
+			str = @"GREEN";
+			break;
+		case ColorBlue:
+			str = @"BLUE";
+			break;
+		case ColorPurple:
+			str = @"PURPLE";
+			break;
+		default:
+			str = @"UNKNOWN";
+			break;
+	}
+	return str;
 }
 
 - (void)timerMethod:(NSThread *)thread {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	while (YES) {
+	
+	while (runProcessingThread) {
 		[self performSelectorOnMainThread:@selector(doActualProcessing) withObject:nil waitUntilDone:NO];
 //		[self doActualProcessing];
 		NSDate *newNextBeat=[[NSDate alloc] initWithTimeInterval:60.0/BPM sinceDate:nextBeat];
@@ -504,9 +520,7 @@ enum {
 		[NSThread sleepUntilDate:nextBeat];
 		//[NSThread sleepForTimeInterval:1.0];
 	}
-	
-
-	
+		
 	[pool release];
 }
 
@@ -519,33 +533,46 @@ enum {
 }
 
 - (void)playColor:(Color)color {
-	if (color != ColorNone) {
-		int src = [[sounds objectAtIndex:color] intValue];
-		[sndMgr startSound:src];
-	}	
+	int src = -1;
+	
+	switch (color) {
+		case ColorYellow:
+			src = [[sounds objectForKey:@"tom"] intValue];
+			break;
+		case ColorGreen:
+			src = [[sounds objectForKey:@"kick"] intValue];
+			break;
+		case ColorBlue:
+			src = [[sounds objectForKey:@"ride"] intValue];
+			break;
+		case ColorPurple:
+			src = [[sounds objectForKey:@"hihatclosed"] intValue];
+			break;
+		case ColorRed:
+			src = [[sounds objectForKey:@"snare"] intValue];
+			break;
+		default:
+			break;
+	}
+	
+	if (src != -1) [sndMgr startSound:src];
 }
 
 #pragma mark -
 #pragma mark Touch handling
 
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
 	currentTouchPoint = [[touches anyObject] locationInView:self.view];
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event;
-{
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
 //	CGPoint movedPoint = [[touches anyObject] locationInView:self.view]; 
 //	CGFloat distanceMoved = sqrt( (movedPoint.x - currentTouchPoint.x) * (movedPoint.x - currentTouchPoint.x) + (movedPoint.y - currentTouchPoint.y) * (movedPoint.y - currentTouchPoint.y) );
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-}
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {}
 
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event 
-{
-}
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {}
 
 #pragma mark -
 #pragma mark Accessors

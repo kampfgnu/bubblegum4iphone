@@ -18,16 +18,13 @@
 #pragma mark Initialization and teardown
 
 // Override the class method to return the OpenGL layer, as opposed to the normal CALayer
-+ (Class) layerClass 
-{
++ (Class) layerClass {
 	return [CAEAGLLayer class];
 }
 
 
-- (id)initWithFrame:(CGRect)frame 
-{
-    if ((self = [super initWithFrame:frame])) 
-	{
+- (id)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
 		// Do OpenGL Core Animation layer setup
 		CAEAGLLayer *eaglLayer = (CAEAGLLayer *)self.layer;
 		
@@ -53,16 +50,14 @@
 }
 
 
-- (void)dealloc 
-{
+- (void)dealloc {
     [super dealloc];
 }
 
 #pragma mark -
 #pragma mark OpenGL drawing
 
-- (BOOL)createFramebuffers
-{	
+- (BOOL)createFramebuffers {	
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 
@@ -81,8 +76,7 @@
 	
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, viewRenderbuffer);
 	
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) 
-	{
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		NSLog(@"Failure with framebuffer generation");
 		return NO;
 	}
@@ -119,8 +113,7 @@
 	
 	
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE) 
-	{
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
 		NSLog(@"Incomplete FBO: %d", status);
         exit(1);
     }
@@ -130,8 +123,7 @@
 	return YES;
 }
 
-- (void)destroyFramebuffer;
-{	
+- (void)destroyFramebuffer {	
 	if (viewFramebuffer)
 	{
 		glDeleteFramebuffers(1, &viewFramebuffer);
@@ -145,10 +137,8 @@
 	}
 }
 
-- (void)setDisplayFramebuffer;
-{
-    if (context)
-    {
+- (void)setDisplayFramebuffer {
+    if (context) {
 //        [EAGLContext setCurrentContext:context];
         
         if (!viewFramebuffer)
@@ -162,14 +152,11 @@
     }
 }
 
-- (void)setPositionThresholdFramebuffer;
-{
-    if (context)
-    {
+- (void)setPositionThresholdFramebuffer {
+    if (context) {
 		//        [EAGLContext setCurrentContext:context];
         
-        if (!positionFramebuffer)
-		{
+        if (!positionFramebuffer) {
             [self createFramebuffers];
 		}
         
@@ -179,12 +166,10 @@
     }
 }
 
-- (BOOL)presentFramebuffer;
-{
+- (BOOL)presentFramebuffer {
     BOOL success = FALSE;
     
-    if (context)
-    {
+    if (context) {
   //      [EAGLContext setCurrentContext:context];
         
         glBindRenderbuffer(GL_RENDERBUFFER, viewRenderbuffer);

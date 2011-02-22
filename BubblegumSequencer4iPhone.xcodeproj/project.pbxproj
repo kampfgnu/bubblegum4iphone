@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02A776B41311E31200F179C6 /* hihatclosed.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02A776AF1311E31200F179C6 /* hihatclosed.caf */; };
+		02A776B51311E31200F179C6 /* kick.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02A776B01311E31200F179C6 /* kick.caf */; };
+		02A776B61311E31200F179C6 /* ride.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02A776B11311E31200F179C6 /* ride.caf */; };
+		02A776B71311E31200F179C6 /* snare.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02A776B21311E31200F179C6 /* snare.caf */; };
+		02A776B81311E31200F179C6 /* tom.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02A776B31311E31200F179C6 /* tom.caf */; };
 		02DF5B8913117F6D00009AB5 /* ColorTrackingCamera.mm in Sources */ = {isa = PBXBuildFile; fileRef = 02DF5B7F13117F6D00009AB5 /* ColorTrackingCamera.mm */; };
 		02DF5B8A13117F6D00009AB5 /* ColorTrackingGLView.m in Sources */ = {isa = PBXBuildFile; fileRef = 02DF5B8113117F6D00009AB5 /* ColorTrackingGLView.m */; };
 		02DF5B8B13117F6D00009AB5 /* ColorTrackingViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 02DF5B8313117F6D00009AB5 /* ColorTrackingViewController.mm */; };
@@ -20,11 +25,6 @@
 		02DF5B9B1311801C00009AB5 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02DF5B9A1311801C00009AB5 /* OpenGLES.framework */; };
 		02DF5B9D1311801C00009AB5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02DF5B9C1311801C00009AB5 /* QuartzCore.framework */; };
 		02DF5BAD1311805000009AB5 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02DF5BAC1311805000009AB5 /* OpenAL.framework */; };
-		02DF5BB6131180CC00009AB5 /* hihatclosed.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02DF5BB1131180CC00009AB5 /* hihatclosed.caf */; };
-		02DF5BB7131180CC00009AB5 /* kick.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02DF5BB2131180CC00009AB5 /* kick.caf */; };
-		02DF5BB8131180CC00009AB5 /* ride.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02DF5BB3131180CC00009AB5 /* ride.caf */; };
-		02DF5BB9131180CC00009AB5 /* snare.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02DF5BB4131180CC00009AB5 /* snare.caf */; };
-		02DF5BBA131180CC00009AB5 /* tom.caf in Resources */ = {isa = PBXBuildFile; fileRef = 02DF5BB5131180CC00009AB5 /* tom.caf */; };
 		02DF5BCB1311811900009AB5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02DF5BCA1311811900009AB5 /* AudioToolbox.framework */; };
 		02DF5BF71311843700009AB5 /* DirectDisplayShader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 02DF5BBC131180D500009AB5 /* DirectDisplayShader.fsh */; };
 		02DF5BF81311844600009AB5 /* DirectDisplayShader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 02DF5BBD131180D500009AB5 /* DirectDisplayShader.vsh */; };
@@ -37,6 +37,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		02A776AF1311E31200F179C6 /* hihatclosed.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = hihatclosed.caf; sourceTree = "<group>"; };
+		02A776B01311E31200F179C6 /* kick.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = kick.caf; sourceTree = "<group>"; };
+		02A776B11311E31200F179C6 /* ride.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ride.caf; sourceTree = "<group>"; };
+		02A776B21311E31200F179C6 /* snare.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = snare.caf; sourceTree = "<group>"; };
+		02A776B31311E31200F179C6 /* tom.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = tom.caf; sourceTree = "<group>"; };
 		02DF5B7E13117F6D00009AB5 /* ColorTrackingCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorTrackingCamera.h; sourceTree = "<group>"; };
 		02DF5B7F13117F6D00009AB5 /* ColorTrackingCamera.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ColorTrackingCamera.mm; sourceTree = "<group>"; };
 		02DF5B8013117F6D00009AB5 /* ColorTrackingGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColorTrackingGLView.h; sourceTree = "<group>"; };
@@ -58,11 +63,6 @@
 		02DF5B9A1311801C00009AB5 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		02DF5B9C1311801C00009AB5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		02DF5BAC1311805000009AB5 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
-		02DF5BB1131180CC00009AB5 /* hihatclosed.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = hihatclosed.caf; sourceTree = "<group>"; };
-		02DF5BB2131180CC00009AB5 /* kick.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = kick.caf; sourceTree = "<group>"; };
-		02DF5BB3131180CC00009AB5 /* ride.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ride.caf; sourceTree = "<group>"; };
-		02DF5BB4131180CC00009AB5 /* snare.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = snare.caf; sourceTree = "<group>"; };
-		02DF5BB5131180CC00009AB5 /* tom.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = tom.caf; sourceTree = "<group>"; };
 		02DF5BBC131180D500009AB5 /* DirectDisplayShader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = DirectDisplayShader.fsh; sourceTree = "<group>"; };
 		02DF5BBD131180D500009AB5 /* DirectDisplayShader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = DirectDisplayShader.vsh; sourceTree = "<group>"; };
 		02DF5BCA1311811900009AB5 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -102,11 +102,11 @@
 		02DF5BB0131180CB00009AB5 /* media */ = {
 			isa = PBXGroup;
 			children = (
-				02DF5BB1131180CC00009AB5 /* hihatclosed.caf */,
-				02DF5BB2131180CC00009AB5 /* kick.caf */,
-				02DF5BB3131180CC00009AB5 /* ride.caf */,
-				02DF5BB4131180CC00009AB5 /* snare.caf */,
-				02DF5BB5131180CC00009AB5 /* tom.caf */,
+				02A776AF1311E31200F179C6 /* hihatclosed.caf */,
+				02A776B01311E31200F179C6 /* kick.caf */,
+				02A776B11311E31200F179C6 /* ride.caf */,
+				02A776B21311E31200F179C6 /* snare.caf */,
+				02A776B31311E31200F179C6 /* tom.caf */,
 			);
 			path = media;
 			sourceTree = "<group>";
@@ -250,14 +250,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				02DF5BB6131180CC00009AB5 /* hihatclosed.caf in Resources */,
-				02DF5BB7131180CC00009AB5 /* kick.caf in Resources */,
-				02DF5BB8131180CC00009AB5 /* ride.caf in Resources */,
-				02DF5BB9131180CC00009AB5 /* snare.caf in Resources */,
-				02DF5BBA131180CC00009AB5 /* tom.caf in Resources */,
 				02DF5BF71311843700009AB5 /* DirectDisplayShader.fsh in Resources */,
 				02DF5BF81311844600009AB5 /* DirectDisplayShader.vsh in Resources */,
 				02DF5C0B1311856000009AB5 /* Settings.bundle in Resources */,
+				02A776B41311E31200F179C6 /* hihatclosed.caf in Resources */,
+				02A776B51311E31200F179C6 /* kick.caf in Resources */,
+				02A776B61311E31200F179C6 /* ride.caf in Resources */,
+				02A776B71311E31200F179C6 /* snare.caf in Resources */,
+				02A776B81311E31200F179C6 /* tom.caf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
