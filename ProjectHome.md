@@ -1,0 +1,1 @@
+bubblegum sequencer for iPhone, using internal cam to detect colors on a grid
